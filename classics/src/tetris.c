@@ -203,6 +203,8 @@ void UpdateGame(void)
             {
                 if (!pieceActive)
                 {
+                    // If piece settled,Check if we fullfilled a line and if so, erase the line and pull down the lines above 
+                    CheckCompletion(&lineToDelete);
                     // Get another piece
                     pieceActive = Createpiece();
 
@@ -235,9 +237,6 @@ void UpdateGame(void)
 
                         // Check if the piece has collided with another piece or with the boundings
                         ResolveFallingMovement(&detection, &pieceActive);
-
-                        // Check if we fullfilled a line and if so, erase the line and pull down the the lines above
-                        CheckCompletion(&lineToDelete);
 
                         gravityMovementCounter = 0;
                     }
@@ -730,8 +729,9 @@ static void CheckDetection(bool *detection)
 static void CheckCompletion(bool *lineToDelete)
 {
     int calculator = 0;
+    bool isEmptyRowFound = false;
 
-    for (int j = GRID_VERTICAL_SIZE - 2; j >= 0; j--)
+    for (int j = GRID_VERTICAL_SIZE - 2 && !isEmptyRowFound; j >= 0; j--)
     {
         calculator = 0;
         for (int i = 1; i < GRID_HORIZONTAL_SIZE - 1; i++)
@@ -741,6 +741,7 @@ static void CheckCompletion(bool *lineToDelete)
             {
                 calculator++;
             }
+        }
 
             // Check if we completed the whole line
             if (calculator == GRID_HORIZONTAL_SIZE - 2)
@@ -755,7 +756,12 @@ static void CheckCompletion(bool *lineToDelete)
                     grid[z][j] = FADING;
                 }
             }
-        }
+            else {
+                if (calculator == 0)
+                {
+                    isEmptyRowFound = true;
+                }
+            }
     }
 }
 
